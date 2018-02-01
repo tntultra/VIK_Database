@@ -4,7 +4,8 @@
 #include <map>
 using namespace std;
 
-template <class It> shared_ptr<Node> ParseComparison(It& current, It end) {
+template <class It> 
+shared_ptr<Node> ParseComparison(It& current, It end) {
   if (current == end) {
     throw logic_error("Expected column name: date or event");
   }
@@ -51,7 +52,7 @@ template <class It> shared_ptr<Node> ParseComparison(It& current, It end) {
 
   if (column.value == "date") {
     istringstream is(value);
-    return make_shared<CDateComparisonNode>(cmp, ParseCDate(is));
+    return make_shared<CDateComparisonNode>(cmp, ParseDate(is));
   } else {
     return make_shared<EventComparisonNode>(cmp, value);
   }

@@ -16,7 +16,13 @@ enum class TokenType {
 
 struct Token {
   const string value;
-  const TokenType type;
+	//DATE looks like "20170101"
+	//EVENT looks like "sport event" (without parentheses but with spaces)
+	//COLUMN means either 'date' or 'event'
+	//LOGICAL_OP means either 'AND' or 'OR'
+	//COMPARE_OP means '>' or '>=' or '==' or '!=' or '<=' or '<'
+
+	const TokenType type;
 };
 
 vector<Token> Tokenize(istream& cl);

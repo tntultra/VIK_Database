@@ -5,6 +5,7 @@
 #include <list>
 #include <map>
 #include <vector>
+#include <set>
 
 struct CEventRecord {
 	static size_t NEXT_SEQUENCE_NUMBER;
@@ -24,19 +25,24 @@ struct CEventRecord {
 	}
 };
 
+std::ostream& operator<<(std::ostream& os, const CEventRecord& rec) {
+	os << rec.Date_ << ' ' << rec.Event_ << '\n';
+}
+
 class CDatabase
 {
-	std::list<CEventRecord> AllEvents_;
-	std::map<CDate, std::map<std::string, CEventRecord*, CEventRecord>> EventsByDate_;
-	std::map<std::string, std::map<CDate, CEventRecord*, CEventRecord>> DatesByEvent_;
+	std::list<CEventRecord> AllRecords_;
 
-	using EventIndexerValueType = std::map<std::string, CEventRecord*, CEventRecord>::value_type;
-	using DateIndexerValueType = std::map<CDate, CEventRecord*, CEventRecord>::value_type;
+	using IndexedRecord = std::set<CEventRecord*, CEventRecord>;
+	using IndexerValueType = IndexedRecord::value_type;
+
+	std::map<CDate, std::set<CEventRecord*, CEventRecord>> EventsByDate_;
+	std::map<std::string, std::set<CEventRecord*, CEventRecord>> DatesByEvent_;
 
 public:
 
 	void Add (const CDate& date, const std::string& event);
-	void Print (const std::ostream& cout);
+	void Print (std::ostream& out);
 	void RemoveIf (<unknown> predicate);
 	std::vector<CEventRecord> FindIf (<unknown> predicate);
 	std::string Last (<unknown> parseCDate);
