@@ -13,6 +13,19 @@ bool operator<(const CDate& lhs, const CDate& rhs)
 	return false;
 }
 
+bool operator>(const CDate& lhs, const CDate& rhs)
+{
+	return (lhs != rhs) && !(lhs < rhs);
+}
+
+bool operator== (const CDate& lhs, const CDate& rhs) {
+	return (lhs.GetYear() == rhs.GetYear()) && (lhs.GetMonth() == rhs.GetMonth()) && (lhs.GetDay() == rhs.GetDay());
+}
+
+bool operator!= (const CDate& lhs, const CDate& rhs) {
+	return !(lhs == rhs);
+}
+
 ostream& operator<<(ostream& stream, const CDate& date)
 {
 	stream << setfill('0');
@@ -21,7 +34,7 @@ ostream& operator<<(ostream& stream, const CDate& date)
 	return stream;
 }
 
-bool validateSymbol(istream& stream, const char ch = '-')
+bool validateSymbol(istream& stream, const char ch)
 {
 	return stream.peek() == ch;
 }
@@ -49,4 +62,11 @@ istream& operator>>(istream& stream, CDate& date)
 	date.SetMonth(vec[1]);
 	date.SetDay(vec[2]);
 	return stream;
+}
+
+CDate ParseDate (std::istream& is)
+{
+	CDate date;
+	is >> date;
+	return date;
 }

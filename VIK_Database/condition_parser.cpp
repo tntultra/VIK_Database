@@ -1,11 +1,14 @@
+#include "stdafx.h"
+
 #include "condition_parser.h"
 #include "token.h"
 
 #include <map>
+#include "Node.h"
 using namespace std;
 
 template <class It> 
-shared_ptr<Node> ParseComparison(It& current, It end) {
+shared_ptr<CNode> ParseComparison(It& current, It end) {
   if (current == end) {
     throw logic_error("Expected column name: date or event");
   }
@@ -54,17 +57,17 @@ shared_ptr<Node> ParseComparison(It& current, It end) {
     istringstream is(value);
     return make_shared<CDateComparisonNode>(cmp, ParseDate(is));
   } else {
-    return make_shared<EventComparisonNode>(cmp, value);
+    return make_shared<CEventComparisonNode>(cmp, value);
   }
 }
 
 template <class It>
-shared_ptr<Node> ParseExpression(It& current, It end, unsigned precedence) {
+shared_ptr<CNode> ParseExpression(It& current, It end, unsigned precedence) {
   if (current == end) {
-    return shared_ptr<Node>();
+    return shared_ptr<CNode>();
   }
 
-  shared_ptr<Node> left;
+  shared_ptr<CNode> left;
 
   if (current->type == TokenType::PAREN_LEFT) {
     ++current; // consume '('
@@ -95,7 +98,7 @@ shared_ptr<Node> ParseExpression(It& current, It end, unsigned precedence) {
 
     ++current; // consume op
 
-    left = make_shared<LogicalOperationNode>(
+    left = make_shared<CLogicalOperationNode>(
         logical_operation, left, ParseExpression(current, end, current_precedence)
     );
   }
@@ -103,13 +106,13 @@ shared_ptr<Node> ParseExpression(It& current, It end, unsigned precedence) {
   return left;
 }
 
-shared_ptr<Node> ParseCondition(istream& is) {
+shared_ptr<CNode> ParseCondition(istream& is) {
   auto tokens = Tokenize(is);
   auto current = tokens.begin();
   auto top_node = ParseExpression(current, tokens.end(), 0u);
 
   if (!top_node) {
-    top_node = make_shared<EmptyNode>();
+    top_node = make_shared<CNode>();
   }
 
   if (current != tokens.end()) {

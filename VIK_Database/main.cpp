@@ -1,8 +1,10 @@
-#include "database.h"
+#include "stdafx.h"
+
+#include "Database.h"
 #include "date.h"
 #include "condition_parser.h"
 #include "node.h"
-#include "test_runner.h"
+#include "TestFramework.h"
 
 #include <iostream>
 #include <stdexcept>
@@ -12,6 +14,9 @@ using namespace std;
 
 string ParseEvent(istream& is) {
   // Реализуйте эту функцию
+	string temp;
+	is >> std::skipws >> temp;
+	return temp;
 }
 
 void TestAll();
@@ -19,7 +24,7 @@ void TestAll();
 int main() {
   TestAll();
 
-  Database db;
+  CDatabase db;
 
   for (string line; getline(cin, line); ) {
     istringstream is(line);

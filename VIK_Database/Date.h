@@ -18,7 +18,7 @@ private:
 	int day;
 public:
 	CDate() :year(1), month(1), day(1) {};
-	CDate(const int& d, const int& m, const int& y)
+	CDate(const int& y, const int& m, const int& d)
 	{
 		SetYear(y);
 		SetMonth(m);
@@ -61,6 +61,11 @@ public:
 };
 
 bool operator<(const CDate& lhs, const CDate& rhs);
+bool operator>(const CDate& lhs, const CDate& rhs);
+bool operator==(const CDate& lhs, const CDate& rhs);
+bool operator!= (const CDate& lhs, const CDate& rhs);
 std::ostream& operator<<(std::ostream& stream, const CDate& date);
 bool validateSymbol(std::istream& stream, const char ch = '-');
 std::istream& operator>>(std::istream& stream, CDate& date);
+
+CDate ParseDate(std::istream& is);

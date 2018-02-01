@@ -149,8 +149,10 @@
     <ClInclude Include="condition_parser.h" />
     <ClInclude Include="Database.h" />
     <ClInclude Include="Date.h" />
+    <ClInclude Include="Node.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="TestFramework.h" />
     <ClInclude Include="token.h" />
   </ItemGroup>
   <ItemGroup>
