@@ -1,35 +1,39 @@
 #pragma once
 
 #include "date.h"
+#include "condition_parser.h"
+
+#include <unordered_set>
 #include <utility>
 #include <list>
 #include <map>
 #include <vector>
 #include <set>
-#include "condition_parser.h"
 
 struct CEventRecord {
-	static size_t NEXT_SEQUENCE_NUMBER;
-
 	CEventRecord() = default;
 
 	explicit CEventRecord(const CDate& date, const std::string& event) :
 		Date_{ date },
-		Event_{ event },
-		SequenceNumber_{ NEXT_SEQUENCE_NUMBER++ }
+		Event_{ event }
 	{}
 	
 	CDate Date_;
 	std::string Event_;
-	size_t SequenceNumber_;
-
 
 	bool operator()(const CEventRecord* lhs, const CEventRecord* rhs) const {
-		return lhs->SequenceNumber_ < rhs->SequenceNumber_;
+		if (lhs->Date_ < rhs->Date_) {
+			return true;
+		}
+		else if (lhs->Event_ < rhs->Event_) {
+			return true;
+		}
+		return false;
 	}
+
 };
 
-bool operator==(const CEventRecord* lhs, const CEventRecord& rhs);
+
 
 inline std::ostream& operator<<(std::ostream& os, const CEventRecord& rec) {
 	os << rec.Date_ << ' ' << rec.Event_ << '\n';
@@ -38,17 +42,8 @@ inline std::ostream& operator<<(std::ostream& os, const CEventRecord& rec) {
 
 class CDatabase
 {
-	std::list<CEventRecord> AllRecords_;
-
-	using IndexedRecord = std::set<const CEventRecord*, CEventRecord>;
-	using IndexedValueType = IndexedRecord::value_type;
-
-	//using IndexedEventRecord = std::map<CDate, CEventRecord*, CEventRecord>;
-	//using IndexedEventValueType = IndexedEventRecord::value_type;
-
-	std::map<CDate, IndexedRecord> EventsByDate_;
-	//std::map<std::string, IndexedRecord> DatesByEvent_;
-
+	std::map<CDate, std::list<CEventRecord>> EventsByDate_;
+	std::set<CEventRecord*, CEventRecord> AllRecords_;
 public:
 
 	void Add (const CDate& date, const std::string& event);

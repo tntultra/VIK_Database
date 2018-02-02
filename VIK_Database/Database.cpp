@@ -10,33 +10,23 @@
 #include <stdexcept>
 #include <string>
 
-
-size_t CEventRecord::NEXT_SEQUENCE_NUMBER = 0;
-
-bool operator==(const CEventRecord* lhs, const CEventRecord& rhs) {
-	return (lhs->Date_ == rhs.Date_) && (lhs->Event_ == rhs.Event_);
-}
-
 void CDatabase::Add (const CDate& date, const std::string& event)
 {
 	CEventRecord newRec{ date, event };
-	auto dateExists = EventsByDate_.find(date);
-	if (dateExists != EventsByDate_.end()) {
-		//auto eventOnDateExists = dateExists->second.find(&newRec);
-		auto eventOnDateExists = std::find (begin(dateExists->second), end(dateExists->second), newRec);
-		if (eventOnDateExists != dateExists->second.end()) {
-			return;
-		}
+	auto recExists = AllRecords_.find(&newRec);
+	if (recExists != end(AllRecords_)) {
+		return;
 	}
-	AllRecords_.push_back(newRec);
-	EventsByDate_[date].insert(IndexedValueType{&AllRecords_.back() });
+	auto& evOnDate = EventsByDate_[date];
+	evOnDate.push_back(newRec);
+	AllRecords_.insert(&evOnDate.back());
 }
 
 void CDatabase::Print(std::ostream& out)
 {
-	for (auto& recordsByDate : EventsByDate_) {
-		for (auto recordPtr : recordsByDate.second) {
-			out << *recordPtr;
+	for (const auto& recordsByDate : EventsByDate_) {
+		for (const auto& recordPtr : recordsByDate.second) {
+			out << recordPtr;
 		}
 	}
 }
@@ -45,23 +35,25 @@ size_t CDatabase::RemoveIf (PREDICATE_FUNCTION pred)
 {
 	size_t removedCount = 0;
 
-	AllRecords_.erase(
-		std::remove_if(begin(AllRecords_), end(AllRecords_), [&](const CEventRecord& rec) mutable {
-			auto remove = pred(rec.Date_, rec.Event_);
-			if (remove) {
-				auto recsByDateIt = EventsByDate_.find(rec.Date_);
-				if (recsByDateIt != EventsByDate_.end()) {
-					recsByDateIt->second.erase(&rec);
-					if (!recsByDateIt->second.size()) {
-						EventsByDate_.erase(rec.Date_);
-					}
-				}
+	for (auto d_it = begin(EventsByDate_); d_it != end(EventsByDate_);) {
+		auto& evOnDateList = d_it->second;
+		for (auto it = begin(evOnDateList); it != end(evOnDateList);) {
+			if (pred(it->Date_, it->Event_)) {
+				AllRecords_.erase(&(*it));
+				it = evOnDateList.erase(it);
 				++removedCount;
 			}
-			return remove;
-		}),
-		end(AllRecords_)
-	);
+			else {
+				++it;
+			}
+		}
+		if (d_it->second.size() == 0) {
+			d_it = EventsByDate_.erase(d_it);
+		}
+		else {
+			++d_it;
+		}
+	}
 	return removedCount;
 	
 }
@@ -69,9 +61,12 @@ size_t CDatabase::RemoveIf (PREDICATE_FUNCTION pred)
 std::vector<CEventRecord> CDatabase::FindIf (PREDICATE_FUNCTION pred)
 {
 	std::vector<CEventRecord> matches;
-	std::copy_if(begin(AllRecords_), end(AllRecords_), std::back_inserter(matches), [&](const CEventRecord& rec) {
-		return pred(rec.Date_,rec.Event_);
-	});
+	for (auto& evOnDatePair : EventsByDate_) {
+		const auto& evOnDateList = evOnDatePair.second;
+		std::copy_if(begin(evOnDateList), end(evOnDateList), std::back_inserter(matches), [&](const CEventRecord& rec) {
+			return pred(rec.Date_, rec.Event_);
+		});
+	}
 	return matches;
 }
 
@@ -80,7 +75,7 @@ std::string CDatabase::Last (CDate&& date)
 	auto ub = EventsByDate_.upper_bound (date);
 	if (ub != EventsByDate_.end()) {
 		auto lastEvent = *(--ub->second.end());
-		return lastEvent->Event_;
+		return lastEvent.Event_;
 	} 
 	return {"No entries"};
 }
@@ -140,7 +135,8 @@ void TestDatabaseOperations() {
 			{
 				istringstream is("Add 2017-06-01 1st of June");
 				db.ParseCommand(is);
-				Assert((db.AllRecords_.begin()->Date_ == CDate{ 2017,6,1 }), "Check added record date");
+				auto val = db.AllRecords_.begin();
+				Assert(((*val)->Date_ == CDate{ 2017,6,1 }), "Check added record date");
 			}
 			{
 				istringstream is("Add 2017-07-08 8th of July");
@@ -152,7 +148,7 @@ void TestDatabaseOperations() {
 				db.ParseCommand(is);
 				auto exDateRecs = db.EventsByDate_[CDate{ 2017,7,8 }];
 				Assert((exDateRecs.size() == 2), "Check that record added to alrdy existing date");
-				Assert(((*(exDateRecs.begin()))->Event_ == "8th of July"), "Check that order is correct");
+				Assert(((*(exDateRecs.begin())).Event_ == "8th of July"), "Check that order is correct");
 			}
 			{
 				istringstream is("Del date == 2017-07-08");
