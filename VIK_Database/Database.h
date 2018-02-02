@@ -40,7 +40,7 @@ public:
 	size_t RemoveIf (PREDICATE_FUNCTION pred);
 	std::vector<CEventRecord> FindIf (PREDICATE_FUNCTION pred);
 	//std::string Last (const CDate&);
-	std::string Last(CDate&&);
+	std::string Last (CDate&&);
 	void ParseCommand(istream& is);
 
 	friend void TestDatabaseOperations();

@@ -11,16 +11,12 @@
 #include <string>
 
 bool operator<(const CEventRecord& lhs, const CEventRecord& rhs) {
-	//cout << "RECORD COMPARE ---------------\n" << lhs << rhs;
 	if (lhs.Date_ != rhs.Date_) {
-		//cout << "lhs < rhs\n";
 		return (lhs.Date_ < rhs.Date_);
 	}
 	if (strcmp (lhs.Event_.c_str(), rhs.Event_.c_str()) < 0) {
-		//cout << "lhs < rhs\n";
 		return true;
 	}
-	//cout << "lhs >= rhs\n";
 	return false;
 }
 
@@ -75,23 +71,20 @@ size_t CDatabase::RemoveIf (PREDICATE_FUNCTION pred)
 std::vector<CEventRecord> CDatabase::FindIf (PREDICATE_FUNCTION pred)
 {
 	std::vector<CEventRecord> matches;
-	for (auto& evOnDatePair : EventsByDate_) {
-		const auto& evOnDateList = evOnDatePair.second;
-		std::copy_if(begin(evOnDateList), end(evOnDateList), std::back_inserter(matches), [&](const CEventRecord& rec) {
+	std::copy_if(begin(AllRecords_), end(AllRecords_), std::back_inserter(matches), [&](const CEventRecord& rec) {
 			return pred(rec.Date_, rec.Event_);
-		});
-	}
+	});
 	return matches;
 }
 
 std::string CDatabase::Last (CDate&& date)
 {
 	auto ub = EventsByDate_.upper_bound (date);
-	if (ub != EventsByDate_.end()) {
-		auto lastEvent = *(--ub->second.end());
-		return lastEvent.Event_;
+	if (ub != EventsByDate_.begin()) {
+		auto lastEvent = *--((--ub)->second.end());
+		return tostring(lastEvent);
 	} 
-	return {"No entries"};
+	return { "No entries" };
 }
 
 void CDatabase::ParseCommand(istream& is) {
@@ -196,7 +189,43 @@ void TestDatabaseOperations() {
 				istringstream is("Print");
 				db.ParseCommand(is);
 			}
-
+			{
+				istringstream is("Find event != \"working day\"");
+				db.ParseCommand(is);
+				Assert((db.AllRecords_.size() == 3), "same record isnt added twice");
+			}
+			{
+				istringstream is("Add 2017-05-09 Holiday");
+				db.ParseCommand(is);
+			}
+			{
+				istringstream is("Last 2016-12-31");
+				db.ParseCommand(is);
+			}
+			{
+				istringstream is("Last 2017-01-01");
+				db.ParseCommand(is);
+			}
+			{
+				istringstream is("Last 2017-06-01");
+				db.ParseCommand(is);
+			}
+			{
+				istringstream is("Del date > 2017-01-1");
+				db.ParseCommand(is);
+				Assert((db.AllRecords_.size() == 2), "only 2017.1.1 remains");
+			}
+			{
+				istringstream is("Find");
+				db.ParseCommand(is);
+			}
+			{
+				istringstream is("Del");
+				db.ParseCommand(is);
+				Assert((db.EventsByDate_.size() == 0), "db is empty");
+				Assert((db.AllRecords_.size() == 0), "index is empty too");
+			}
+			
 		}
 	}
 }
