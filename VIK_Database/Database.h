@@ -23,10 +23,13 @@ struct CEventRecord {
 	std::string Event_;
 	size_t SequenceNumber_;
 
+
 	bool operator()(const CEventRecord* lhs, const CEventRecord* rhs) const {
 		return lhs->SequenceNumber_ < rhs->SequenceNumber_;
 	}
 };
+
+bool operator==(const CEventRecord* lhs, const CEventRecord& rhs);
 
 inline std::ostream& operator<<(std::ostream& os, const CEventRecord& rec) {
 	os << rec.Date_ << ' ' << rec.Event_ << '\n';
@@ -54,4 +57,8 @@ public:
 	std::vector<CEventRecord> FindIf (PREDICATE_FUNCTION pred);
 	//std::string Last (const CDate&);
 	std::string Last(CDate&&);
+	void ParseCommand(istream& is);
+
+	friend void TestDatabaseOperations();
 };
+

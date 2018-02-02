@@ -10,7 +10,7 @@ public:
 	virtual ~CNode() = default;
 	virtual bool Evaluate(const CDate& date, const std::string& event) const
 	{
-		return false;
+		return true;
 	}
 };
 

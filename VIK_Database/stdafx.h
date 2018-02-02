@@ -9,7 +9,9 @@
 
 #include <stdio.h>
 #include <tchar.h>
+#include <string>
+#include <iostream>
 
-
+std::string ParseEvent(std::istream& is);
 
 // TODO: reference additional headers your program requires here
