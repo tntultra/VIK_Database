@@ -10,16 +10,30 @@
 #include <stdexcept>
 #include <string>
 
+bool operator<(const CEventRecord& lhs, const CEventRecord& rhs) {
+	//cout << "RECORD COMPARE ---------------\n" << lhs << rhs;
+	if (lhs.Date_ != rhs.Date_) {
+		//cout << "lhs < rhs\n";
+		return (lhs.Date_ < rhs.Date_);
+	}
+	if (strcmp (lhs.Event_.c_str(), rhs.Event_.c_str()) < 0) {
+		//cout << "lhs < rhs\n";
+		return true;
+	}
+	//cout << "lhs >= rhs\n";
+	return false;
+}
+
 void CDatabase::Add (const CDate& date, const std::string& event)
 {
 	CEventRecord newRec{ date, event };
-	auto recExists = AllRecords_.find(&newRec);
+	auto recExists = AllRecords_.find(newRec);
 	if (recExists != end(AllRecords_)) {
 		return;
 	}
 	auto& evOnDate = EventsByDate_[date];
 	evOnDate.push_back(newRec);
-	AllRecords_.insert(&evOnDate.back());
+	AllRecords_.insert(newRec);
 }
 
 void CDatabase::Print(std::ostream& out)
@@ -39,7 +53,7 @@ size_t CDatabase::RemoveIf (PREDICATE_FUNCTION pred)
 		auto& evOnDateList = d_it->second;
 		for (auto it = begin(evOnDateList); it != end(evOnDateList);) {
 			if (pred(it->Date_, it->Event_)) {
-				AllRecords_.erase(&(*it));
+				AllRecords_.erase(*it);
 				it = evOnDateList.erase(it);
 				++removedCount;
 			}
@@ -136,7 +150,7 @@ void TestDatabaseOperations() {
 				istringstream is("Add 2017-06-01 1st of June");
 				db.ParseCommand(is);
 				auto val = db.AllRecords_.begin();
-				Assert(((*val)->Date_ == CDate{ 2017,6,1 }), "Check added record date");
+				Assert(((*val).Date_ == CDate{ 2017,6,1 }), "Check added record date");
 			}
 			{
 				istringstream is("Add 2017-07-08 8th of July");

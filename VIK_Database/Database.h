@@ -20,20 +20,9 @@ struct CEventRecord {
 	
 	CDate Date_;
 	std::string Event_;
-
-	bool operator()(const CEventRecord* lhs, const CEventRecord* rhs) const {
-		if (lhs->Date_ < rhs->Date_) {
-			return true;
-		}
-		else if (lhs->Event_ < rhs->Event_) {
-			return true;
-		}
-		return false;
-	}
-
 };
 
-
+bool operator<(const CEventRecord& lhs, const CEventRecord& rhs);
 
 inline std::ostream& operator<<(std::ostream& os, const CEventRecord& rec) {
 	os << rec.Date_ << ' ' << rec.Event_ << '\n';
@@ -43,7 +32,7 @@ inline std::ostream& operator<<(std::ostream& os, const CEventRecord& rec) {
 class CDatabase
 {
 	std::map<CDate, std::list<CEventRecord>> EventsByDate_;
-	std::set<CEventRecord*, CEventRecord> AllRecords_;
+	std::set<CEventRecord> AllRecords_;
 public:
 
 	void Add (const CDate& date, const std::string& event);
