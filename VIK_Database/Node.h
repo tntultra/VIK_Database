@@ -4,25 +4,53 @@
 
 class CDate;
 
+enum class Comparison
+{
+	Less,
+	LessOrEqual,
+	Greater,
+	GreaterOrEqual,
+	Equal,
+	NotEqual
+};
+
+template<class ToCompare>
+bool Compare(Comparison cmp, const ToCompare& stored, const ToCompare& newVal)
+{
+	switch (cmp) {
+	case Comparison::Less:
+		return newVal < stored;
+	case Comparison::LessOrEqual:
+		return newVal < stored || newVal == stored;
+	case Comparison::Greater:
+		return newVal > stored;
+	case Comparison::GreaterOrEqual:
+		return newVal > stored || newVal == stored;
+	case Comparison::Equal:
+		return newVal == stored;
+	case Comparison::NotEqual:
+		return newVal != stored;
+	}
+	return false;
+}
+
 class CNode
 {
 public:
 	virtual ~CNode() = default;
+	virtual bool Evaluate(const CDate& date, const std::string& event) const = 0;
+};
+
+class CEmptyNode : public CNode
+{
+public:
+	virtual ~CEmptyNode() = default;
 	virtual bool Evaluate(const CDate& date, const std::string& event) const
 	{
 		return true;
 	}
 };
 
-enum class Comparison
-{
-	Less, 
-	LessOrEqual,
-	Greater, 
-	GreaterOrEqual, 
-	Equal, 
-	NotEqual
-};
 
 class CDateComparisonNode : public CNode
 {
@@ -36,7 +64,8 @@ public:
 
 	virtual ~CDateComparisonNode() = default;
 	virtual bool Evaluate(const CDate& date, const std::string& event) const override final {
-		switch (Cmp_) {
+		return Compare(Cmp_, Date_, date);
+		/*switch (Cmp_) {
 		case Comparison::Less:
 			return date < Date_;
 		case Comparison::LessOrEqual:
@@ -50,7 +79,7 @@ public:
 		case Comparison::NotEqual:
 			return date != Date_;
 		}
-		return false;
+		return false;*/
 	}
 };
 
@@ -66,7 +95,8 @@ public:
 
 	virtual ~CEventComparisonNode() = default;
 	virtual bool Evaluate(const CDate& date, const std::string& event) const override final {
-		switch (Cmp_) {
+		return Compare(Cmp_, Event_, event);
+		/*switch (Cmp_) {
 		case Comparison::Less:
 			return event < Event_;
 		case Comparison::LessOrEqual:
@@ -80,7 +110,7 @@ public:
 		case Comparison::NotEqual:
 			return event != Event_;
 		}
-		return false;
+		return false;*/
 	}
 };
 

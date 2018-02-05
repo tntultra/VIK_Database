@@ -17,7 +17,7 @@ private:
 	int month;
 	int day;
 public:
-	CDate() :year(1), month(1), day(1) {};
+	CDate() :year(-1), month(-1), day(-1) {};
 	CDate(const int& y, const int& m, const int& d)
 	{
 		SetYear(y);

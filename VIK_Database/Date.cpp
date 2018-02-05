@@ -52,12 +52,12 @@ istream& operator>>(istream& stream, CDate& date)
 		ss >> item;
 		if (cnt<2 && !validateSymbol(ss))
 		{
-			throw runtime_error("Wrong date format: " + dateline);
+			throw invalid_argument("Wrong date format: " + dateline);
 		}
 		ss.ignore(1, '-');
 		cnt++;
 	}
-	if (ss) throw runtime_error("Wrong date format: " + dateline);
+	if (ss) throw invalid_argument("Wrong date format: " + dateline);
 	date.SetYear(vec[0]);
 	date.SetMonth(vec[1]);
 	date.SetDay(vec[2]);

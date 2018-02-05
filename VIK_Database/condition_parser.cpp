@@ -64,7 +64,7 @@ shared_ptr<CNode> ParseComparison(It& current, It end) {
 template <class It>
 shared_ptr<CNode> ParseExpression(It& current, It end, unsigned precedence) {
   if (current == end) {
-    return shared_ptr<CNode>();
+    return shared_ptr<CEmptyNode>();
   }
 
   shared_ptr<CNode> left;
@@ -112,7 +112,7 @@ shared_ptr<CNode> ParseCondition(istream& is) {
   auto top_node = ParseExpression(current, tokens.end(), 0u);
 
   if (!top_node) {
-    top_node = make_shared<CNode>();
+    top_node = make_shared<CEmptyNode>();
   }
 
   if (current != tokens.end()) {

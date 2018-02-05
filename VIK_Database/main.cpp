@@ -7,6 +7,7 @@
 #include "TestFramework.h"
 
 #include <iostream>
+#include <fstream>
 #include <stdexcept>
 #include <string>
 
@@ -26,11 +27,21 @@ void TestAll();
 int main() {
   TestAll();
 
+  fstream fin("commands", ios::in);
   CDatabase db;
 
-  for (string line; getline(cin, line); ) {
-    istringstream is(line);
+  //  for (string line; getline(cin, line); ) {
+  for (string line; getline(fin, line); ) {
+	istringstream is(line);
+	try {
 		db.ParseCommand(is);
+	}
+	catch (const logic_error& error) {
+		cout << error.what() << endl;
+	}
+	catch (...) {
+		cout << "Catched unexpected exception" << endl;
+	}
   }
 
   return 0;
