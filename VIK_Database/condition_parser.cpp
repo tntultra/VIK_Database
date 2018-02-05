@@ -64,7 +64,7 @@ shared_ptr<CNode> ParseComparison(It& current, It end) {
 template <class It>
 shared_ptr<CNode> ParseExpression(It& current, It end, unsigned precedence) {
   if (current == end) {
-    return shared_ptr<CEmptyNode>();
+    return shared_ptr<CNode>();
   }
 
   shared_ptr<CNode> left;

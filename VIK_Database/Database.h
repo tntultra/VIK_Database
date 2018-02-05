@@ -25,7 +25,7 @@ struct CEventRecord {
 bool operator<(const CEventRecord& lhs, const CEventRecord& rhs);
 
 inline std::ostream& operator<<(std::ostream& os, const CEventRecord& rec) {
-	os << rec.Date_ << ' ' << rec.Event_ << '\n';
+	os << rec.Date_ << ' ' << rec.Event_ ;
 	return os;
 }
 

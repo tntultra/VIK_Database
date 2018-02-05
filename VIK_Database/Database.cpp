@@ -36,7 +36,7 @@ void CDatabase::Print(std::ostream& out)
 {
 	for (const auto& recordsByDate : EventsByDate_) {
 		for (const auto& recordPtr : recordsByDate.second) {
-			out << recordPtr;
+			out << recordPtr << endl;
 		}
 	}
 }
@@ -65,15 +65,17 @@ size_t CDatabase::RemoveIf (PREDICATE_FUNCTION pred)
 		}
 	}
 	return removedCount;
-	
 }
 
 std::vector<CEventRecord> CDatabase::FindIf (PREDICATE_FUNCTION pred)
 {
 	std::vector<CEventRecord> matches;
-	std::copy_if(begin(AllRecords_), end(AllRecords_), std::back_inserter(matches), [&](const CEventRecord& rec) {
+	for (auto it = begin(EventsByDate_); it != end(EventsByDate_); ++it) {
+		auto& evOnDateList = it->second;
+		std::copy_if(begin(evOnDateList), end(evOnDateList), std::back_inserter(matches), [&](const CEventRecord& rec) {
 			return pred(rec.Date_, rec.Event_);
-	});
+		});
+	}
 	return matches;
 }
 
